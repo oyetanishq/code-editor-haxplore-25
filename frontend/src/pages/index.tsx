@@ -1,21 +1,15 @@
-import Navbar from "@components/Navbar";
-import CodeEditor, { exampleTabs, tab } from "@components/code-editor";
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
+import { useNavigate } from "react-router";
+import { v4 as uuidv4 } from "uuid";
 
 function App() {
-	const [tabs, setTabs] = useState<tab[]>(exampleTabs);
+	const navigate = useNavigate();
 
-	return (
-		<>
-			<nav>
-				<Navbar />
-			</nav>
+	useEffect(() => {
+		navigate(uuidv4().substring(0, 6));
+	}, []);
 
-			<main>
-				<CodeEditor tabs={tabs} setTabs={setTabs} className="w-full h-[calc(100%-8rem)] flex" />
-			</main>
-		</>
-	);
+	return <h1>loading</h1>;
 }
 
 export default App;
