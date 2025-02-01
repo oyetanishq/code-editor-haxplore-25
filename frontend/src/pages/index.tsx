@@ -1,27 +1,21 @@
-import Right from '@components/Right'
-import Navbar from '../components/Navbar'
-import Left from '@components/Left'
+import Navbar from "@components/Navbar";
+import CodeEditor, { exampleTabs, tab } from "@components/code-editor";
+import { useState, useEffect } from "react";
+
 function App() {
- return(
-    <>
-    <nav>
-    <Navbar/>
-    </nav>
+	const [tabs, setTabs] = useState<tab[]>(exampleTabs);
 
-    <div className="main">
-        <div className='flex'>
-        
-            <Left/>
-            <Right/>
-       
+	return (
+		<>
+			<nav>
+				<Navbar />
+			</nav>
 
-       
-        
-        </div>
-    </div>
-
-    </>
- )
+			<main>
+				<CodeEditor tabs={tabs} setTabs={setTabs} className="w-full h-[calc(100%-8rem)] flex" />
+			</main>
+		</>
+	);
 }
 
-export default App
+export default App;
