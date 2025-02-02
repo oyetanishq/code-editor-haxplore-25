@@ -50,6 +50,7 @@ export default function CodeEditor({ tabs, setTabs, className, rid, name: userNa
 	const [message, setMessage] = useState("");
 	const [socket, setSocket] = useState<WebSocket | null>(null);
 	const [explorer, setExplorer] = useState<"chat" | "files" | null>("files");
+	const [fontSize, setFontSize] = useState("14");
 
 	useEffect(() => {
 		const ws = new WebSocket("wss://simple-ws.deno.dev");
@@ -74,9 +75,19 @@ export default function CodeEditor({ tabs, setTabs, className, rid, name: userNa
 	return (
 		<div className={className}>
 			{/* sidebar */}
-			<div className="min-w-10 flex flex-col pt-4 gap-4 px-3 border-r">
+			<div className="w-20 flex flex-col items-center pt-4 gap-4 px-3 border-r">
 				<PiFiles size={26} onClick={() => setExplorer((exp) => (exp === "files" ? null : "files"))} className={classNames("cursor-pointer", explorer === "files" && "fill-blue-500")} />
 				<BsChatLeftText size={20} onClick={() => setExplorer((exp) => (exp === "chat" ? null : "chat"))} className={classNames("cursor-pointer", explorer === "chat" && "fill-blue-500")} />
+				<label className="text-sm">
+					font size
+					<select value={fontSize} onChange={(e) => setFontSize(e.target.value)} className="pt-2 bg-transparent border">
+						{[10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30].map((size, index) => (
+							<option key={size + ":" + index} value={size}>
+								{size}
+							</option>
+						))}
+					</select>
+				</label>
 			</div>
 
 			{/* explorer files */}
@@ -132,8 +143,8 @@ export default function CodeEditor({ tabs, setTabs, className, rid, name: userNa
 					<button
 						className="mx-1 w-16"
 						onClick={() => {
-                            if (message.length < 1) return;
-                            
+							if (message.length < 1) return;
+
 							socket.send(
 								JSON.stringify({
 									type: "sendtoall",
@@ -154,12 +165,13 @@ export default function CodeEditor({ tabs, setTabs, className, rid, name: userNa
 			</div>
 
 			{/* editor */}
-			<div className={classNames("h-full", explorer ? "w-[calc(100%-18.5rem)]" : "w-[calc(100%-2.5rem)]")}>
+			<div className={classNames("h-full", explorer ? "w-[calc(100%-21rem)]" : "w-[calc(100%-5rem)]")}>
 				{tabs.map(({ id, code, active, language, name }) => {
 					return (
 						<div key={id} className={classNames(active ? "" : "hidden", "overflow-scroll h-full w-full hide-scrollbar")}>
 							<Editor
 								className="editor"
+								style={{ fontSize: fontSize + "px" }}
 								value={code}
 								onValueChange={(newCode) => {
 									socket.send(
