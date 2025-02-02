@@ -1,10 +1,9 @@
 import { useState } from "react";
-import { useNavigate, useParams } from "react-router";
+import { useNavigate } from "react-router";
 
 function EnterRoom() {
 	const [name, setName] = useState("");
 	const navigate = useNavigate();
-    const { rid } = useParams();
 
 	return (
 		<div className="h-full w-full flex justify-center items-center">
