@@ -12,11 +12,11 @@ function App() {
 	return (
 		<>
 			<nav>
-				<Navbar code={rid} />
+				<Navbar code={rid.split(":")[0]} />
 			</nav>
 
-			<main>
-				<CodeEditor tabs={tabs} setTabs={setTabs} className="w-full h-[calc(100%-8rem)] flex" rid={rid} />
+			<main className="h-[calc(100%-4rem)]">
+				<CodeEditor tabs={tabs} setTabs={setTabs} className="w-full h-full flex" rid={rid.split(":")[0]} name={rid.split(":")[1]} />
 			</main>
 		</>
 	);

@@ -1,6 +1,9 @@
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import classNames from "classnames";
 
+import { PiFiles } from "react-icons/pi";
+import { BsChatLeftText } from "react-icons/bs";
+
 import Editor from "react-simple-code-editor";
 import { highlight, languages } from "prismjs";
 import "prismjs/themes/prism-dark.css";
@@ -16,6 +19,11 @@ export type tab = {
 	language: string;
 };
 
+export type Chat = {
+	from: string;
+	message: string;
+};
+
 export const exampleTabs: tab[] = [
 	{
 		id: 1,
@@ -26,8 +34,22 @@ export const exampleTabs: tab[] = [
 	},
 ];
 
-export default function CodeEditor({ tabs, setTabs, className, rid }: { tabs: tab[]; setTabs: Dispatch<SetStateAction<tab[]>>; className: string | undefined; rid: string }) {
+export const exampleChats: Chat[] = [
+	{
+		from: "kaju",
+		message: "hi there kaise ho, muje lag raha h ye sab bakwaas h",
+	},
+	{
+		from: "viki",
+		message: "kaise ho?",
+	},
+];
+
+export default function CodeEditor({ tabs, setTabs, className, rid, name: userName }: { tabs: tab[]; setTabs: Dispatch<SetStateAction<tab[]>>; className: string | undefined; rid: string; name: string }) {
+	const [chats, setChats] = useState<Chat[]>(exampleChats);
+	const [message, setMessage] = useState("");
 	const [socket, setSocket] = useState<WebSocket | null>(null);
+	const [explorer, setExplorer] = useState<"chat" | "files" | null>("files");
 
 	useEffect(() => {
 		const ws = new WebSocket("wss://simple-ws.deno.dev");
@@ -39,6 +61,7 @@ export default function CodeEditor({ tabs, setTabs, className, rid }: { tabs: ta
 
 			if (message.type === "code-update") setTabs((tabs) => tabs.map(({ id, name, code, language, active }) => ({ id, name, active, code: name === message.name ? message.code : code, language })));
 			if (message.type === "create-file") setTabs((tabs) => [...tabs, { active: false, name: message.name, language: "typescript", code: "", id: v4().substring(0, 5) }]);
+			if (message.type === "message") setChats((chats) => [...chats, { from: message.name, message: message.message }]);
 		};
 
 		setSocket(ws);
@@ -50,8 +73,14 @@ export default function CodeEditor({ tabs, setTabs, className, rid }: { tabs: ta
 
 	return (
 		<div className={className}>
-			{/* explorer */}
-			<div className="min-w-64 flex flex-col mt-4">
+			{/* sidebar */}
+			<div className="min-w-10 flex flex-col pt-4 gap-4 px-3 border-r">
+				<PiFiles size={26} onClick={() => setExplorer((exp) => (exp === "files" ? null : "files"))} className={classNames("cursor-pointer", explorer === "files" && "fill-blue-500")} />
+				<BsChatLeftText size={20} onClick={() => setExplorer((exp) => (exp === "chat" ? null : "chat"))} className={classNames("cursor-pointer", explorer === "chat" && "fill-blue-500")} />
+			</div>
+
+			{/* explorer files */}
+			<div className={classNames("flex flex-col pt-4 border-r", explorer === "files" ? "w-64 " : "hidden")}>
 				{tabs.map(({ id, name, active }) => {
 					return (
 						<button
@@ -86,8 +115,46 @@ export default function CodeEditor({ tabs, setTabs, className, rid }: { tabs: ta
 				</label>
 			</div>
 
+			{/* explorer chatting */}
+			<div className={classNames("flex flex-col justify-between pt-4 border-r", explorer === "chat" ? "w-64 " : "hidden")}>
+				<div>
+					{chats.map(({ from, message }, index) => {
+						return (
+							<div key={from + message + index} className="px-3 w-full flex justify-start pb-4">
+								<p className="text-blue-700 underline underline-offset-4">{from}:</p>
+								<p className="pl-2">{message}</p>
+							</div>
+						);
+					})}
+				</div>
+				<div className="h-12 my-4 flex">
+					<input type="text" placeholder="message" className="h-full border ml-1 px-2 w-48" onChange={(e) => setMessage(e.target.value)} value={message} />
+					<button
+						className="mx-1 w-16"
+						onClick={() => {
+                            if (message.length < 1) return;
+                            
+							socket.send(
+								JSON.stringify({
+									type: "sendtoall",
+									message: {
+										type: "message",
+										rid,
+										message,
+										name: userName,
+									},
+								})
+							);
+							setMessage("");
+						}}
+					>
+						send
+					</button>
+				</div>
+			</div>
+
 			{/* editor */}
-			<div className="h-full w-[calc(100%-16rem)]">
+			<div className={classNames("h-full", explorer ? "w-[calc(100%-18.5rem)]" : "w-[calc(100%-2.5rem)]")}>
 				{tabs.map(({ id, code, active, language, name }) => {
 					return (
 						<div key={id} className={classNames(active ? "" : "hidden", "overflow-scroll h-full w-full hide-scrollbar")}>
