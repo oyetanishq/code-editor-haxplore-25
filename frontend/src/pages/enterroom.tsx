@@ -1,10 +1,10 @@
 import { useState } from "react";
-import { useNavigate } from "react-router";
-import { v4 as uuidv4 } from "uuid";
+import { useNavigate, useParams } from "react-router";
 
-function App() {
+function EnterRoom() {
 	const [name, setName] = useState("");
 	const navigate = useNavigate();
+    const { rid } = useParams();
 
 	return (
 		<div className="h-full w-full flex justify-center items-center">
@@ -17,7 +17,7 @@ function App() {
 						return;
 					}
 
-					navigate(uuidv4().substring(0, 6) + "/" + name);
+					navigate(name);
 				}}
 			>
 				continue
@@ -26,4 +26,4 @@ function App() {
 	);
 }
 
-export default App;
+export default EnterRoom;

@@ -34,19 +34,8 @@ export const exampleTabs: tab[] = [
 	},
 ];
 
-export const exampleChats: Chat[] = [
-	{
-		from: "kaju",
-		message: "hi there kaise ho, muje lag raha h ye sab bakwaas h",
-	},
-	{
-		from: "viki",
-		message: "kaise ho?",
-	},
-];
-
 export default function CodeEditor({ tabs, setTabs, className, rid, name: userName }: { tabs: tab[]; setTabs: Dispatch<SetStateAction<tab[]>>; className: string | undefined; rid: string; name: string }) {
-	const [chats, setChats] = useState<Chat[]>(exampleChats);
+	const [chats, setChats] = useState<Chat[]>([]);
 	const [message, setMessage] = useState("");
 	const [socket, setSocket] = useState<WebSocket | null>(null);
 	const [explorer, setExplorer] = useState<"chat" | "files" | null>("files");
